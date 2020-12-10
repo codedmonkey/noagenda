@@ -1,0 +1,4 @@
+*/5 * * * * /srv/www/bin/console app:enqueue feed
+0 */4 * * * /srv/www/bin/console app:enqueue bat_signal
+0 */4 * * * /srv/www/bin/console app:enqueue transcripts
+0 */4 * * * /srv/www/bin/console app:enqueue youtube

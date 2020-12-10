@@ -110,6 +110,18 @@ services:
     networks:
       - php
 
+  scheduler:
+    image: codedmonkey/noagenda_app
+    restart: unless-stopped
+    tty: true
+    entrypoint: ["app-scheduler-entrypoint"]
+    command: tail -f /var/log/cron.log
+    depends_on:
+      - app
+    networks:
+      - php
+      - database
+
 networks:
   assets:
   database:

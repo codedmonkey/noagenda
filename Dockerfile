@@ -4,7 +4,7 @@ WORKDIR /srv/www
 
 # Install additional packages
 RUN apt-get update; apt-get install --no-install-recommends -y \
-    acl libmagickwand-dev netcat unzip \
+    acl cron libmagickwand-dev netcat unzip \
     ffmpeg mplayer
 
 RUN apt-get update; apt-get install -y python-pip; \
@@ -16,6 +16,12 @@ RUN apt-get update; apt-get install -y python-pip; \
 RUN pecl install imagick; \
 	docker-php-ext-enable imagick; \
     docker-php-ext-install pdo_mysql zip
+
+# Set up cronjobs
+COPY docker/cron/cronfile /etc/cron.d/app
+RUN chmod 0644 /etc/cron.d/app
+RUN crontab /etc/cron.d/app
+RUN touch /var/log/cron.log
 
 # Install Composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -47,6 +53,9 @@ RUN chmod +x /usr/local/bin/app-entrypoint
 
 COPY docker/php-entrypoint.bash /usr/local/bin/app-php-entrypoint
 RUN chmod +x /usr/local/bin/app-php-entrypoint
+
+COPY docker/scheduler-entrypoint.bash /usr/local/bin/app-scheduler-entrypoint
+RUN chmod +x /usr/local/bin/app-scheduler-entrypoint
 
 ENTRYPOINT ["app-entrypoint"]
 CMD ["php-fpm"]
