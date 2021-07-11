@@ -1,17 +1,19 @@
 version: 2.1
 orbs:
-  node: circleci/node@1.1.6
+  docker: circleci/docker@1.5.0
 jobs:
   build-and-test:
     executor:
-      name: node/default
+      name: docker/docker
     steps:
+      - setup_remote_docker:
+          version: 19.03.13
       - checkout
-      - node/with-cache:
-          steps:
-            - run: npm install yarn
-            - run: yarn install
-            - run: npm test
+      - run: docker-compose build
+      - run: docker-compose up -d app database assets
+      - run: docker exec -t project_app_1 bin/scripts/wait-for-app.sh
+      - run: docker exec -t project_assets_1 yarn run test
+      - run: docker exec -t project_app_1 php bin/phpunit
 workflows:
     build-and-test:
       jobs:

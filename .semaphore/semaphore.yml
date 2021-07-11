@@ -8,13 +8,11 @@ blocks:
   - name: No Agenda
     task:
       jobs:
-        - name: JavaScript Unit Tests
+        - name: Unit Tests
           commands:
             - checkout
-            - sem-version node 12
-            - cache restore
-            - npm install yarn
-            - yarn install
-            - cache store
-            - yarn build --if-present
-            - yarn test
+            - docker-compose build
+            - docker-compose up -d app database assets
+            - docker exec -t noagenda_app_1 bin/scripts/wait-for-app.sh
+            - docker exec -t noagenda_assets_1 yarn run test
+            - docker exec -t noagenda_app_1 php bin/phpunit
